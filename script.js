@@ -11,19 +11,16 @@ const answers = [
   "Without a doubt"
 ];
 
-// Memory structures
 let lastAnswer = null;
 const usage = {};
 answers.forEach(a => usage[a] = 0);
 
 const questionMemory = new Map();
 
-// Normalize questions
 function normalize(q) {
   return q.toLowerCase().replace(/[^\w\s]/g, "").trim();
 }
 
-// Detect similarity
 function areRelated(q1, q2) {
   const a = normalize(q1).split(" ");
   const b = normalize(q2).split(" ");
@@ -31,18 +28,15 @@ function areRelated(q1, q2) {
   return overlap.length >= 2;
 }
 
-// Smart answer engine
 function getSmartAnswer(question) {
   const norm = normalize(question);
 
-  // Asked before
   if (questionMemory.has(norm)) {
     const previous = questionMemory.get(norm);
     previous.timesAsked++;
 
     let answer;
 
-    // Chance to change its mind
     if (previous.timesAsked >= 3 && Math.random() < 0.3) {
       do {
         answer = answers[Math.floor(Math.random() * answers.length)];
@@ -59,7 +53,6 @@ function getSmartAnswer(question) {
     return answer;
   }
 
-  // Related questions
   for (const [pastQ, data] of questionMemory.entries()) {
     if (areRelated(norm, pastQ)) {
       const answer = data.answer;
@@ -70,7 +63,6 @@ function getSmartAnswer(question) {
     }
   }
 
-  // Weighted selection
   const minUsage = Math.min(...Object.values(usage));
   const leastUsed = answers.filter(a => usage[a] === minUsage);
 
@@ -86,7 +78,6 @@ function getSmartAnswer(question) {
   return answer;
 }
 
-// UI logic
 const ball = document.querySelector(".eight-ball");
 const inner = document.querySelector(".inner");
 const answerText = document.getElementById("answerText");
